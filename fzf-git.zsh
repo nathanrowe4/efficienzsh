@@ -1,0 +1,116 @@
+is_in_git_repo() {
+  git rev-parse HEAD > /dev/null 2>&1
+}
+
+fzf_git_branch() {
+  is_in_git_repo || return
+
+  git branch --color=always --all --sort=-committerdate |
+    grep -Ev "HEAD|remote" |
+    fzf --ansi --no-multi --preview-window right:65% --header "Select a branch" \
+        --preview 'git log -n 50 --color=always --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
+    sed "s/.* //"
+}
+
+fzf_git_branch_multi() {
+  is_in_git_repo || return
+
+  git branch --color=always --all --sort=-committerdate |
+    grep -Ev "HEAD|remote" |
+    fzf --ansi --multi --preview-window right:65% --header "Select a branch" \
+        --preview 'git log -n 50 --color=always --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
+    sed "s/.* //"
+}
+
+fzf_git_mod_files() {
+  is_in_git_repo || return
+
+  git diff --name-only |
+    # Show filepath(s) in fzf relative to base of git repo
+    fzf --ansi --multi --preview-window right:65% --header "Select a file" \
+        --preview 'realpath --relative-to=. $(git rev-parse --show-toplevel)/{} |
+                   xargs git diff --color=always --date=short --' |
+    # Return filepath(s) relative to current location
+    xargs -I {} realpath --relative-to=. $(git rev-parse --show-toplevel)/{}
+}
+
+fzf_git_diff() {
+  is_in_git_repo || return
+
+  local mod_files
+
+  mod_files=$(fzf_git_mod_files)
+
+  if [[ "$mod_files" = "" ]]; then
+    echo "No file(s) selected."
+    return
+  fi
+
+  echo $mod_files | xargs git diff
+}
+
+fzf_git_overwrite_local() {
+  is_in_git_repo || return
+
+  local mod_files
+
+  mod_files=$(fzf_git_mod_files)
+
+  if [[ "$mod_files" = "" ]]; then
+    echo "No file(s) selected."
+    return
+  fi
+
+  echo $mod_files | xargs git checkout --
+}
+
+# TODO: Add flag to include remote branches
+fzf_git_checkout() {
+  is_in_git_repo || return
+
+  local branch
+
+  branch=$(fzf_git_branch)
+  if [[ "$branch" = "" ]]; then
+      echo "No branch selected."
+      return
+  fi
+
+  if [[ "$branch" = "remotes/"* ]]; then
+    git checkout --track $branch
+  else
+    git checkout $branch
+  fi
+}
+
+fzf_git_delete_branch() {
+  is_in_git_repo || return
+
+  branches=$(fzf_git_branch_multi)
+  if [[ "$branches" = "" ]]; then
+    echo "No branch(es) selected."
+      return
+  fi
+
+  echo $branches | xargs git branch -d
+}
+
+fzf_git_force_delete_branch() {
+  is_in_git_repo || return
+
+  branches=$(fzf_git_branch_multi)
+  if [[ "$branches" = "" ]]; then
+    echo "No branch(es) selected."
+      return
+  fi
+
+  echo $branches | xargs git branch -D
+}
+
+# aliases
+alias gb="fzf_git_branch"
+alias gco="fzf_git_checkout"
+alias gdb="fzf_git_delete_branch"
+alias gDb="fzf_git_force_delete_branch"
+alias gdf="fzf_git_diff"
+alias gol="fzf_git_overwrite_local"
