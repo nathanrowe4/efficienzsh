@@ -22,6 +22,14 @@ fzf_git_branch_multi() {
     sed "s/.* //"
 }
 
+fzf_git_commit_hash() {
+  is_in_git_repo || return
+
+  git log --decorate --pretty=oneline |
+    fzf |
+    awk '{print $1}'
+}
+
 fzf_git_mod_files() {
   is_in_git_repo || return
 
@@ -101,10 +109,48 @@ fzf_git_force_delete_branch() {
   branches=$(fzf_git_branch_multi)
   if [[ "$branches" = "" ]]; then
     echo "No branch(es) selected."
-      return
+    return
   fi
 
   echo $branches | xargs git branch -D
+}
+
+fzf_git_merge() {
+  is_in_git_repo || return
+
+  branch=$(fzf_git_branch)
+  if [[ "$branch" = "" ]]; then
+    echo "No branch selected."
+    return
+  fi
+
+  git merge $branch
+}
+
+fzf_git_rebase() {
+  is_in_git_repo || return
+
+  branch=$(fzf_git_branch)
+  if [[ "$branch" = "" ]]; then
+    echo "No branch selected."
+    return
+  fi
+
+  git rebase $branch
+}
+
+fzf_git_rebase_interactive() {
+  is_in_git_repo || return
+
+  local commit_hash
+
+  commit_hash=$(fzf_git_commit_hash)
+  if [[ "$commit_hash" = "" ]]; then
+    echo "No commit selected."
+    return
+  fi
+
+  git rebase -i $commit_hash
 }
 
 # aliases
@@ -114,3 +160,6 @@ alias gdb="fzf_git_delete_branch"
 alias gDb="fzf_git_force_delete_branch"
 alias gdf="fzf_git_diff"
 alias gol="fzf_git_overwrite_local"
+alias gm="fzf_git_merge"
+alias gr="fzf_git_rebase"
+alias gri="fzf_git_rebase_interactive"
