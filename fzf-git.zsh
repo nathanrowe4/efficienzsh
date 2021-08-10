@@ -30,7 +30,7 @@ fzf_git_commit_hash() {
     awk '{print $1}'
 }
 
-fzf_git_mod_files() {
+fzf_git_diff_name_only() {
   is_in_git_repo || return
 
   git diff --name-only |
@@ -42,12 +42,39 @@ fzf_git_mod_files() {
     xargs -I {} realpath --relative-to=. $(git rev-parse --show-toplevel)/{}
 }
 
+fzf_git_unmerged_files() {
+  is_in_git_repo || return
+
+  git diff --name-only --diff-filter=U |
+    # Show filepath(s) in fzf relative to base of git repo
+    fzf --ansi --multi --preview-window right:65% --header "Select a file" \
+        --preview 'realpath --relative-to=. $(git rev-parse --show-toplevel)/{} |
+                   xargs git diff --color=always --date=short --' |
+    # Return filepath(s) relative to current location
+    xargs -I {} realpath --relative-to=. $(git rev-parse --show-toplevel)/{}
+}
+
+fzf_git_merge_conflicts() {
+  is_in_git_repo || return
+
+  local file=$(fzf_git_unmerged_files)
+
+  if [[ "$file" = "" ]]; then
+    echo "No file selected."
+    return
+  fi
+
+  $EDITOR $file
+
+  git add $file
+}
+
 fzf_git_diff() {
   is_in_git_repo || return
 
   local mod_files
 
-  mod_files=$(fzf_git_mod_files)
+  mod_files=$(fzf_git_diff_name_only)
 
   if [[ "$mod_files" = "" ]]; then
     echo "No file(s) selected."
@@ -62,7 +89,7 @@ fzf_git_overwrite_local() {
 
   local mod_files
 
-  mod_files=$(fzf_git_mod_files)
+  mod_files=$(fzf_git_diff_name_only)
 
   if [[ "$mod_files" = "" ]]; then
     echo "No file(s) selected."
@@ -161,5 +188,6 @@ alias gDb="fzf_git_force_delete_branch"
 alias gdf="fzf_git_diff"
 alias gol="fzf_git_overwrite_local"
 alias gm="fzf_git_merge"
+alias gmc="fzf_git_merge_conflicts"
 alias gr="fzf_git_rebase"
 alias gri="fzf_git_rebase_interactive"
