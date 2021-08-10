@@ -1,11 +1,12 @@
 ## efficienzsh
 
-### fzf-git There's no denying it, git provides a pretty awesome CLI. But I was
-finding myself in situations where my keystrokes couldn't keep up to my brain.
-fzf-git is a tool with the purpose of simplifying commonly-used git workflows
-so that less brain-power is required. This is simply an augmentation to the
-existing git functionality, so there are certainly situations where none of the
-commands are of use.
+### fzf-git
+There's no denying it, git provides a pretty awesome CLI. But I was finding
+myself in situations where my keystrokes couldn't keep up to my brain.  fzf-git
+is a tool with the purpose of simplifying commonly-used git workflows so that
+less brain-power is required. This is simply an augmentation to the existing
+git functionality, so there are certainly situations where the complexity
+requires the more feature-rich CLI.
 
 Without further ado:
 - [fzf\_git\_diff](#fzf-git-diff)
