@@ -71,7 +71,14 @@ fzf_git_merge_conflicts() {
     $VISUAL $file
   fi
 
-  # TODO: Prompt to see if user wants to stage changes in file
+  # Prompt user to mark selected file as resolved
+  echo "Do you wish to mark ${file} as resolved?"
+  select yn in "yes" "no"; do
+      case $yn in
+          yes ) git add $file; return;;
+          no ) return;;
+      esac
+  done
 }
 
 fzf_git_diff() {
