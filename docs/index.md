@@ -15,6 +15,7 @@ Without further ado:
 - [fzf\_git\_delete\_branch](#fzf-git-delete-branch)
 - [fzf\_git\_force\_delete\_branch](#fzf-git-force-delete-branch)
 - [fzf\_git\_merge](#fzf-git-merge)
+- [fzf\_git\_merge\_conflicts](#fzf-git-merge-conflicts)
 - [fzf\_git\_rebase](#fzf-git-rebase)
 - [fzf\_git\_rebase\_interactive](#fzf-git-rebase-interactive)
 
@@ -72,6 +73,21 @@ merge.
 
 This is essentially ```git merge <branch>``` with a simpler way to select
 ```<branch>```.
+
+#### fzf\_git\_merge\_conflicts {#fzf-git-merge-conflicts}
+
+fzf\_git\_merge\_conflicts allows you to fuzzy find files in your repository
+with merge conflicts. When you select a file, it opens in your default visual
+editor. Once you finish editing the selected file, you will be prompted to mark
+your changes as resolved.
+
+##### Conflicts in Location List
+
+If your visual editor of choice is "vim", fzf\_git\_merge\_conflicts will
+populate the location list with the conflicts for the file you selected. This
+will allow you to navigate quickly to the merge conflicts you wish to resolve.
+More information on location lists and how to use them can be found in the
+[documentation](http://vimdoc.sourceforge.net/htmldoc/quickfix.html)
 
 #### fzf\_git\_rebase {#fzf-git-rebase}
 
