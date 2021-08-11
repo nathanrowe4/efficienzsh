@@ -64,9 +64,14 @@ fzf_git_merge_conflicts() {
     return
   fi
 
-  $EDITOR $file
+  if [[ "$VISUAL" = "vim" ]]; then
+    # Populate location list with selected file's merge conflicts
+    $VISUAL -c "lgrep '<<<<<<' %" -c "lopen" $file
+  else
+    $VISUAL $file
+  fi
 
-  git add $file
+  # TODO: Prompt to see if user wants to stage changes in file
 }
 
 fzf_git_diff() {
