@@ -22,6 +22,7 @@ An exhaustive list of dependencies:
 - [Oh My Zsh](https://ohmyz.sh/)
 - [fzf](https://github.com/junegunn/fzf)
 - [git](https://git-scm.com/)
+- [kubectl](https://kubernetes.io/docs/reference/kubectl)
 
 ### Clone Repository
 
@@ -42,6 +43,7 @@ export efficienzsh="~/.efficienzsh"
 
 # Source the efficienzsh files you wish to use
 [ -f $efficienzsh/fzf-git.zsh ] && source $efficienzsh/fzf-git.zsh
+[ -f $efficienzsh/fzf-kubectl.zsh ] && source $efficienzsh/fzf-kubectl.zsh
 ```
 
 ## Usage
