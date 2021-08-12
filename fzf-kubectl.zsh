@@ -19,6 +19,7 @@ fzf_kubectl_get_pod_name() {
 fzf_kubectl_get_pods() {
   # Function to get pods for a namespace
 
+  # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
   if [[ "$namespace" = "" ]]; then
@@ -26,12 +27,14 @@ fzf_kubectl_get_pods() {
     return
   fi
 
+  # Get pods for selected namespace
   kubectl -n $namespace get pods
 }
 
 fzf_kubectl_describe_pod() {
   # Function to fzf and describe selected pod
 
+  # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
   if [[ "$namespace" = "" ]]; then
@@ -39,6 +42,7 @@ fzf_kubectl_describe_pod() {
     return
   fi
 
+  # Fuzzy search pod from selected namespace
   local pod=$(fzf_kubectl_get_pod_name $namespace)
 
   if [[ "$pod" = "" ]]; then
@@ -46,12 +50,14 @@ fzf_kubectl_describe_pod() {
     return
   fi
 
+  # Describe selected pod
   kubectl -n $namespace describe pod $pod
 }
 
 fzf_kubectl_logs_pod() {
   # Function to display logs of pod selected from fzf
 
+  # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
   if [[ "$namespace" = "" ]]; then
@@ -59,6 +65,7 @@ fzf_kubectl_logs_pod() {
     return
   fi
 
+  # Fuzzy search pod from selected namespace
   local pod=$(fzf_kubectl_get_pod_name $namespace)
 
   if [[ "$pod" = "" ]]; then
@@ -66,6 +73,7 @@ fzf_kubectl_logs_pod() {
     return
   fi
 
+  # Get logs for selected pod
   kubectl -n $namespace logs $pod
 }
 
@@ -91,6 +99,7 @@ kubectl_get_pod_port() {
 fzf_kubectl_port_forward_pod() {
   # Function to port-forward pod selected from fzf
 
+  # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
   if [[ "$namespace" = "" ]]; then
@@ -98,6 +107,7 @@ fzf_kubectl_port_forward_pod() {
     return
   fi
 
+  # Fuzzy search pod from selected namespace
   local pod=$(fzf_kubectl_get_pod_name $namespace)
 
   if [[ "$pod" = "" ]]; then
@@ -105,18 +115,22 @@ fzf_kubectl_port_forward_pod() {
     return
   fi
 
+  # Get default port for selected pod
   local port=$(kubectl_get_pod_port $pod)
+
   if [[ "$port" = "" ]]; then
     echo "No default port specified for the $pod pod."
     return
   fi
 
+  # Port-forward local host port to default port for selected pod
   kubectl -n $namespace port-forward pod/$pod $port
 }
 
 fzf_kubectl_exec_pod() {
   # Function to exec into pod
 
+  # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
   if [[ "$namespace" = "" ]]; then
@@ -124,6 +138,7 @@ fzf_kubectl_exec_pod() {
     return
   fi
 
+  # Fuzzy search pod from selected namespace
   local pod=$(fzf_kubectl_get_pod_name $namespace)
 
   if [[ "$pod" = "" ]]; then
@@ -131,6 +146,7 @@ fzf_kubectl_exec_pod() {
     return
   fi
 
+  # Exec /bin/bash in selected pod
   kubectl -n $namespace exec $pod -it -- /bin/bash
 }
 
