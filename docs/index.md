@@ -119,10 +119,21 @@ provides functionality to run operations on different resource types in a
 cluster.
 
 The following functions are available:
+- [fzf\_kubectl\_get\_pods](#fzf-kubectl-get-pods)
 - [fzf\_kubectl\_describe\_pod](#fzf-kubectl-describe-pod)
 - [fzf\_kubectl\_logs\_pod](#fzf-kubectl-logs-pod)
 - [fzf\_kubectl\_port\_forward\_pod](#fzf-kubectl-port-forward-pod)
 - [fzf\_kubectl\_exec\_pod](#fzf-kubectl-exec-pod)
+
+#### fzf\_kubectl\_get\_pods {#fzf-kubectl-get-pods}
+
+fzf\_kubectl\_get\_pods allows you to fuzzy search for a namespace and get pods
+from the selected namespace.
+
+This is essentially ```kubectl -n <namespace> get pods``` with a simpler way to
+select ```<namespace>```. Further documentation for the "get" command can be
+found
+[here](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#get).
 
 #### fzf\_kubectl\_describe\_pod {#fzf-kubectl-describe-pod}
 

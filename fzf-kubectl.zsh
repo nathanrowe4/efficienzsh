@@ -16,6 +16,19 @@ fzf_kubectl_get_pod_name() {
     fzf --no-multi --header "Select a pod"
 }
 
+fzf_kubectl_get_pods() {
+  # Function to get pods for a namespace
+
+  local namespace=$(fzf_kubectl_get_namespace_name)
+
+  if [[ "$namespace" = "" ]]; then
+    echo "No namespace selected."
+    return
+  fi
+
+  kubectl -n $namespace get pods
+}
+
 fzf_kubectl_describe_pod() {
   # Function to fzf and describe selected pod
 
@@ -122,6 +135,7 @@ fzf_kubectl_exec_pod() {
 }
 
 # aliases
+alias kgp="fzf_kubectl_get_pods"
 alias kdp="fzf_kubectl_describe_pod"
 alias klp="fzf_kubectl_logs_pod"
 alias kpf="fzf_kubectl_port_forward_pod"
