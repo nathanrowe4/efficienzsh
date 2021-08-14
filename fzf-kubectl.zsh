@@ -19,6 +19,21 @@ fzf_kubectl_get_pod_name() {
 fzf_kubectl_get_pods() {
   # Function to get pods for a namespace
 
+  # Parse command line arguments
+  while getopts h flag
+  do
+    case "${flag}" in
+      h) echo "Get pods for a selected namespace."
+         echo
+         echo "usage: fzf_kubectl_get_pods [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
+
   # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
@@ -33,6 +48,21 @@ fzf_kubectl_get_pods() {
 
 fzf_kubectl_describe_pod() {
   # Function to fzf and describe selected pod
+
+  # Parse command line arguments
+  while getopts h flag
+  do
+    case "${flag}" in
+      h) echo "Describe a selected pod."
+         echo
+         echo "usage: fzf_kubectl_describe_pod [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
 
   # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
@@ -56,6 +86,21 @@ fzf_kubectl_describe_pod() {
 
 fzf_kubectl_logs_pod() {
   # Function to display logs of pod selected from fzf
+
+  # Parse command line arguments
+  while getopts h flag
+  do
+    case "${flag}" in
+      h) echo "Get logs for a selected pod."
+         echo
+         echo "usage: fzf_kubectl_logs_pod [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
 
   # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
@@ -99,6 +144,23 @@ kubectl_get_pod_port() {
 fzf_kubectl_port_forward_pod() {
   # Function to port-forward pod selected from fzf
 
+  # Parse command line arguments
+  while getopts p:h flag
+  do
+    case "${flag}" in
+      h) echo "Port-forward local host port to a selected pod."
+         echo
+         echo "usage: fzf_kubectl_port_forward_pod [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         echo "    -p port    Port-forward 'port'."
+         return;;
+      p) port=${OPTARG};;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
+
   # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
 
@@ -115,12 +177,21 @@ fzf_kubectl_port_forward_pod() {
     return
   fi
 
-  # Get default port for selected pod
-  local port=$(kubectl_get_pod_port $pod)
+  if ! (( ${+port} )); then
+    port=$(kubectl_get_pod_port $pod)
 
-  if [[ "$port" = "" ]]; then
-    echo "No default port specified for the $pod pod."
-    return
+    if [[ "$port" = "" ]]; then
+      # Prompt user for port to forward
+      echo "No default port specified for the $pod pod."
+      printf '%s ' 'Which port do you wish to use?'
+      read port
+
+      # Verify manually entered port is a number
+      if ! [[ "$port" =~ "^[0-9]+$" ]]; then
+        echo "Port specified is not a number."
+        return
+      fi
+    fi
   fi
 
   # Port-forward local host port to default port for selected pod
@@ -129,6 +200,21 @@ fzf_kubectl_port_forward_pod() {
 
 fzf_kubectl_exec_pod() {
   # Function to exec into pod
+
+  # Parse command line arguments
+  while getopts p:h flag
+  do
+    case "${flag}" in
+      h) echo "Exec into a selected pod."
+         echo
+         echo "usage: fzf_kubectl_port_forward_pod [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
 
   # Fuzzy search and select namespace
   local namespace=$(fzf_kubectl_get_namespace_name)
