@@ -14,6 +14,7 @@ git functionality, so there are certainly situations where the complexity
 requires the more feature-rich CLI.
 
 Without further ado:
+- [fzf\_git\_add](#fzf-git-add)
 - [fzf\_git\_diff](#fzf-git-diff)
 - [fzf\_git\_overwrite\_local](#fzf-git-overwrite-local)
 - [fzf\_git\_checkout](#fzf-git-checkout)
@@ -23,6 +24,15 @@ Without further ado:
 - [fzf\_git\_merge\_conflicts](#fzf-git-merge-conflicts)
 - [fzf\_git\_rebase](#fzf-git-rebase)
 - [fzf\_git\_rebase\_interactive](#fzf-git-rebase-interactive)
+
+#### fzf\_git\_add {#fzf-git-add}
+
+fzf\_git\_add allows you to select multiple files to stage for commit. This
+command should be used when you have multiple files changed and only want to
+stage a subset of those files.
+
+This is essentially ```git add <file-1> <file-2> ... <file-n>``` with a simpler
+way to select ```<file-1>``` through ```<file-n>```.
 
 #### fzf\_git\_diff {#fzf-git-diff}
 
