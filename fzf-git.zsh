@@ -3,8 +3,7 @@ is_in_git_repo() {
 }
 
 fzf_git_branch() {
-  # Return if function not called from git repo
-
+  # Parse command line arguments
   while getopts hr flag
   do
     case "${flag}" in
@@ -19,6 +18,7 @@ fzf_git_branch() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   if ! (( ${+filter} )); then
@@ -81,16 +81,23 @@ fzf_git_unmerged_files() {
     xargs -I {} realpath --relative-to=. $(git rev-parse --show-toplevel)/{}
 }
 
-fzf_git_merge_conflicts() {
-  # Return if function not called from git repo
+fzf_git_unstaged_files() {
+  is_in_git_repo || return
 
+  git status -s |
+    cut -c4- |
+    fzf --ansi --multi --preview-window right:65% --header "Select file(s)" \
+        --preview 'git diff --color=always --date=short -- {}'
+}
+
+fzf_git_add() {
   # Parse command line arguments
   while getopts h flag
   do
     case "${flag}" in
-      h) echo "Fuzzy search for files with merge conflicts and open in default editor."
+      h) echo "Fuzzy search for modified files to stage for commit."
          echo
-         echo "usage: fzf_git_merge_conflicts [options]"
+         echo "usage: fzf_git_add [options]"
          echo "  options:"
          echo "    -h         Print this help."
          return;;
@@ -99,6 +106,36 @@ fzf_git_merge_conflicts() {
     esac
   done
 
+  # Return if function not called from git repo
+  is_in_git_repo || return
+
+  local files=$(fzf_git_unstaged_files)
+
+  if [[ "$files" = "" ]]; then
+    echo "No file(s) selected."
+    return
+  fi
+
+  echo $files | xargs git add
+}
+
+fzf_git_conflicts() {
+  # Parse command line arguments
+  while getopts h flag
+  do
+    case "${flag}" in
+      h) echo "Fuzzy search for files with conflicts and open in default editor."
+         echo
+         echo "usage: fzf_git_conflicts [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
+
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local file=$(fzf_git_unmerged_files)
@@ -125,8 +162,6 @@ fzf_git_merge_conflicts() {
 }
 
 fzf_git_diff() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts h flag
   do
@@ -142,6 +177,7 @@ fzf_git_diff() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local mod_files=$(fzf_git_diff_name_only)
@@ -156,8 +192,6 @@ fzf_git_diff() {
 }
 
 fzf_git_overwrite_local() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts h flag
   do
@@ -173,6 +207,7 @@ fzf_git_overwrite_local() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local mod_files=$(fzf_git_diff_name_only)
@@ -187,8 +222,6 @@ fzf_git_overwrite_local() {
 }
 
 fzf_git_checkout() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts rh flag
   do
@@ -206,6 +239,7 @@ fzf_git_checkout() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local branch
@@ -230,8 +264,6 @@ fzf_git_checkout() {
 }
 
 fzf_git_delete_branch() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts fh flag
   do
@@ -249,6 +281,7 @@ fzf_git_delete_branch() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local branches=$(fzf_git_branch_multi)
@@ -268,8 +301,6 @@ fzf_git_delete_branch() {
 }
 
 fzf_git_merge() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts h flag
   do
@@ -285,6 +316,7 @@ fzf_git_merge() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local branch=$(fzf_git_branch)
@@ -299,8 +331,6 @@ fzf_git_merge() {
 }
 
 fzf_git_rebase() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts h flag
   do
@@ -316,6 +346,7 @@ fzf_git_rebase() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local branch=$(fzf_git_branch)
@@ -330,8 +361,6 @@ fzf_git_rebase() {
 }
 
 fzf_git_rebase_interactive() {
-  # Return if function not called from git repo
-
   # Parse command line arguments
   while getopts h flag
   do
@@ -347,6 +376,7 @@ fzf_git_rebase_interactive() {
     esac
   done
 
+  # Return if function not called from git repo
   is_in_git_repo || return
 
   local commit_hash=$(fzf_git_commit_hash)
@@ -361,12 +391,13 @@ fzf_git_rebase_interactive() {
 }
 
 # aliases
+alias ga="fzf_git_add"
 alias gb="fzf_git_branch"
 alias gco="fzf_git_checkout"
 alias gdb="fzf_git_delete_branch"
 alias gdf="fzf_git_diff"
 alias gol="fzf_git_overwrite_local"
 alias gm="fzf_git_merge"
-alias gmc="fzf_git_merge_conflicts"
+alias gc="fzf_git_conflicts"
 alias gr="fzf_git_rebase"
 alias gri="fzf_git_rebase_interactive"
