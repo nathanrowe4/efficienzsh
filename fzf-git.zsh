@@ -26,10 +26,10 @@ fzf_git_branch() {
   fi
 
   # Pipe commands to fuzzy-search and select single branch
-  git branch --color=always --all --sort=-committerdate |
+  git branch --all --sort=-committerdate |
     grep -Ev $filter |
     fzf --ansi --no-multi --preview-window right:65% --header "Select a branch" \
-        --preview 'git log -n 50 --color=always --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
+        --preview 'git log -n 50 --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
     sed "s/.* //"
 }
 
@@ -38,10 +38,10 @@ fzf_git_branch_multi() {
   is_in_git_repo || return
 
   # Pipe commands to fuzzy-search and select multiple branches
-  git branch --color=always --all --sort=-committerdate |
+  git branch --all --sort=-committerdate |
     grep -Ev "HEAD|remote" |
     fzf --ansi --multi --preview-window right:65% --header "Select a branch" \
-        --preview 'git log -n 50 --color=always --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
+        --preview 'git log -n 50 --date=short --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
     sed "s/.* //"
 }
 
@@ -76,7 +76,7 @@ fzf_git_unmerged_files() {
     # Show filepath(s) in fzf relative to base of git repo
     fzf --ansi --multi --preview-window right:65% --header "Select a file" \
         --preview 'realpath --relative-to=. $(git rev-parse --show-toplevel)/{} |
-                   xargs git diff --color=always --date=short --' |
+                   xargs git diff --date=short --' |
     # Return filepath(s) relative to current location
     xargs -I {} realpath --relative-to=. $(git rev-parse --show-toplevel)/{}
 }
