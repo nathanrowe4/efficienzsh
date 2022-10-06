@@ -46,12 +46,27 @@ fzf_git_branch_multi() {
 }
 
 fzf_git_commit_hash() {
+  # Parse command line arguments
+  while getopts hb:m: flag
+  do
+    case "${flag}" in
+      h) echo "Fuzzy search and select git branches."
+         echo
+         echo "usage: fzf_git_branch [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         echo "    -b         Base commit."
+         return;;
+      b) local commit_range="${OPTARG}..HEAD";;
+      m) local message="${OPTARG}";;
+    esac
+  done
+
   # Return if function not called from git repo
   is_in_git_repo || return
 
-  # Pipe commands to fuzzy-search and select git commit
-  git log --decorate --pretty=oneline |
-    fzf |
+  git log --decorate --pretty=oneline $commit_range |
+    fzf --header $message |
     awk '{print $1}'
 }
 
@@ -379,7 +394,7 @@ fzf_git_rebase_interactive() {
   # Return if function not called from git repo
   is_in_git_repo || return
 
-  local commit_hash=$(fzf_git_commit_hash)
+  local commit_hash=$(fzf_git_commit_hash -m "Select rebase fork point")
 
   if [[ "$commit_hash" = "" ]]; then
     echo "No commit selected."
@@ -390,12 +405,47 @@ fzf_git_rebase_interactive() {
   git rebase -i $commit_hash
 }
 
+fzf_git_diff_commits() {
+  # Parse command line arguments
+  while getopts h flag
+  do
+    case "${flag}" in
+      h) echo "Fuzzy search and view diff between two commits."
+         echo
+         echo "usage: fzf_git_diff_commits [options]"
+         echo "  options:"
+         echo "    -h         Print this help."
+         return;;
+      \?) echo "Invalid option"
+          return;;
+    esac
+  done
+
+  # Return if function not called from git repo
+  is_in_git_repo || return
+
+  local base_commit=$(fzf_git_commit_hash -m "Select base commit")
+  if [[ "$base_commit" = "" ]]; then
+    echo "No commit selected."
+    return
+  fi
+
+  local current_commit=$(fzf_git_commit_hash -b $base_commit -m "Select head commit")
+  if [[ "$current_commit" = "" ]]; then
+    echo "No commit selected."
+    return
+  fi
+
+  git diff $base_commit..$current_commit
+}
+
 # aliases
 alias ga="fzf_git_add"
 alias gb="fzf_git_branch"
 alias gco="fzf_git_checkout"
 alias gdb="fzf_git_delete_branch"
 alias gdf="fzf_git_diff"
+alias gdc="fzf_git_diff_commits"
 alias gol="fzf_git_overwrite_local"
 alias gm="fzf_git_merge"
 alias gc="fzf_git_conflicts"
